@@ -746,146 +746,183 @@ if st.session_state["result"] is not None:
 # CAREER COMPARISON
 # ========================================================
 
-st.markdown("---")
+# ============================================================
+# CAREER COMPARISON
+# ============================================================
 
-st.markdown(
-    '<div class="section-title">⚖️ Compare Career Paths</div>',
-    unsafe_allow_html=True
-)
+if st.session_state.get("result") is not None:
 
-st.write(
-    "Not sure which path is better for you? "
-    "Compare two AI-recommended careers side-by-side."
-)
+    result = st.session_state["result"]
+    careers = result.get("careers", [])
 
-comparison_names = [
-    career["name"]
-    for career in careers
-]
+    if len(careers) >= 2:
 
-compare_col1, compare_col2 = st.columns(2)
+        st.markdown("---")
 
-with compare_col1:
+        st.markdown(
+            '<div class="section-title">⚖️ Compare Career Paths</div>',
+            unsafe_allow_html=True
+        )
 
-    career_a_name = st.selectbox(
-        "Career A",
-        comparison_names,
-        index=0,
-        key="career_a"
-    )
+        st.write(
+            "Not sure which path is better for you? "
+            "Compare two AI-recommended careers side-by-side."
+        )
 
-with compare_col2:
-
-    career_b_name = st.selectbox(
-        "Career B",
-        comparison_names,
-        index=1 if len(comparison_names) > 1 else 0,
-        key="career_b"
-    )
-
-career_a = next(
-    career for career in careers
-    if career["name"] == career_a_name
-)
-
-career_b = next(
-    career for career in careers
-    if career["name"] == career_b_name
-)
-
-if career_a_name == career_b_name:
-
-    st.warning(
-        "Please select two different careers to compare."
-    )
-
-else:
-
-    st.markdown("### 📊 Career Comparison")
-
-    comparison_table = {
-        "Category": [
-            "AI Match Score",
-            "Career Outlook",
-            "Academic Fit",
-            "Interest Fit",
-            "Skill Fit"
-        ],
-        career_a["name"]: [
-            f"{career_a['score']}/100",
-            career_a["outlook"],
-            f"{career_a['score_breakdown']['academic_fit']}/100",
-            f"{career_a['score_breakdown']['interest_fit']}/100",
-            f"{career_a['score_breakdown']['skill_fit']}/100"
-        ],
-        career_b["name"]: [
-            f"{career_b['score']}/100",
-            career_b["outlook"],
-            f"{career_b['score_breakdown']['academic_fit']}/100",
-            f"{career_b['score_breakdown']['interest_fit']}/100",
-            f"{career_b['score_breakdown']['skill_fit']}/100"
+        comparison_names = [
+            career["name"]
+            for career in careers
         ]
-    }
 
-    st.table(comparison_table)
+        compare_col1, compare_col2 = st.columns(2)
 
-    st.markdown("### 💪 Strength Comparison")
+        with compare_col1:
 
-    strength_col1, strength_col2 = st.columns(2)
+            career_a_name = st.selectbox(
+                "Career A",
+                comparison_names,
+                index=0,
+                key="career_a"
+            )
 
-    with strength_col1:
+        with compare_col2:
 
-        st.markdown(f"#### {career_a['name']}")
+            career_b_name = st.selectbox(
+                "Career B",
+                comparison_names,
+                index=1,
+                key="career_b"
+            )
 
-        for strength in career_a["strengths"]:
-            st.success(f"✓ {strength}")
+        career_a = next(
+            career for career in careers
+            if career["name"] == career_a_name
+        )
 
-    with strength_col2:
+        career_b = next(
+            career for career in careers
+            if career["name"] == career_b_name
+        )
 
-        st.markdown(f"#### {career_b['name']}")
+        if career_a_name == career_b_name:
 
-        for strength in career_b["strengths"]:
-            st.success(f"✓ {strength}")
+            st.warning(
+                "Please select two different careers to compare."
+            )
 
-    st.markdown("### 🧩 Skill Gap Comparison")
+        else:
 
-    gap_col1, gap_col2 = st.columns(2)
+            st.markdown("### 📊 Career Comparison")
 
-    with gap_col1:
+            comparison_table = {
+                "Category": [
+                    "AI Match Score",
+                    "Career Outlook",
+                    "Academic Fit",
+                    "Interest Fit",
+                    "Skill Fit"
+                ],
 
-        st.markdown(f"#### {career_a['name']}")
+                career_a["name"]: [
+                    f"{career_a['score']}/100",
+                    career_a["outlook"],
+                    f"{career_a['score_breakdown']['academic_fit']}/100",
+                    f"{career_a['score_breakdown']['interest_fit']}/100",
+                    f"{career_a['score_breakdown']['skill_fit']}/100"
+                ],
 
-        for gap in career_a["skill_gaps"]:
-            st.warning(f"→ {gap}")
+                career_b["name"]: [
+                    f"{career_b['score']}/100",
+                    career_b["outlook"],
+                    f"{career_b['score_breakdown']['academic_fit']}/100",
+                    f"{career_b['score_breakdown']['interest_fit']}/100",
+                    f"{career_b['score_breakdown']['skill_fit']}/100"
+                ]
+            }
 
-    with gap_col2:
+            st.table(comparison_table)
 
-        st.markdown(f"#### {career_b['name']}")
+            st.markdown("### 💪 Strength Comparison")
 
-        for gap in career_b["skill_gaps"]:
-            st.warning(f"→ {gap}")
+            strength_col1, strength_col2 = st.columns(2)
 
-    # Determine the stronger match
-    if career_a["score"] > career_b["score"]:
+            with strength_col1:
 
-        winner = career_a["name"]
-        difference = career_a["score"] - career_b["score"]
+                st.markdown(
+                    f"#### {career_a['name']}"
+                )
 
-    else:
+                for strength in career_a["strengths"]:
+                    st.success(
+                        f"✓ {strength}"
+                    )
 
-        winner = career_b["name"]
-        difference = career_b["score"] - career_a["score"]
+            with strength_col2:
 
-    st.info(
-        f"🎯 **Based on the current student profile, "
-        f"{winner} has the stronger AI match by "
-        f"{difference} points.**"
-    )
+                st.markdown(
+                    f"#### {career_b['name']}"
+                )
 
-    st.caption(
-        "This comparison is guidance, not a prediction of future success. "
-        "Students should consider their own goals and explore both options."
-    )
+                for strength in career_b["strengths"]:
+                    st.success(
+                        f"✓ {strength}"
+                    )
+
+            st.markdown("### 🧩 Skill Gap Comparison")
+
+            gap_col1, gap_col2 = st.columns(2)
+
+            with gap_col1:
+
+                st.markdown(
+                    f"#### {career_a['name']}"
+                )
+
+                for gap in career_a["skill_gaps"]:
+                    st.warning(
+                        f"→ {gap}"
+                    )
+
+            with gap_col2:
+
+                st.markdown(
+                    f"#### {career_b['name']}"
+                )
+
+                for gap in career_b["skill_gaps"]:
+                    st.warning(
+                        f"→ {gap}"
+                    )
+
+            # Determine stronger match
+
+            if career_a["score"] > career_b["score"]:
+
+                winner = career_a["name"]
+                difference = (
+                    career_a["score"]
+                    - career_b["score"]
+                )
+
+            else:
+
+                winner = career_b["name"]
+                difference = (
+                    career_b["score"]
+                    - career_a["score"]
+                )
+
+            st.info(
+                f"🎯 **Based on the current student profile, "
+                f"{winner} has the stronger AI match by "
+                f"{difference} points.**"
+            )
+
+            st.caption(
+                "This comparison is guidance, not a prediction "
+                "of future success. Students should consider "
+                "their own goals and explore both options."
+            )
 
     # ========================================================
     # SKILL GAP SUMMARY
